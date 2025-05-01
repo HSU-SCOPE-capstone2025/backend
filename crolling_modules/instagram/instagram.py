@@ -25,8 +25,8 @@ os.makedirs(base_folder, exist_ok=True)
 file_path = "influencer_update.xlsx"  # 현재 폴더에 위치한 파일
 df = pd.read_excel(file_path)
 
-# 23번째 행부터 끝까지 데이터 가져오기
-#df = df.iloc[21:]
+# n+2번째 행부터 끝까지 데이터 가져오기
+# df = df.iloc[12:]
 
 # 웹드라이버 초기화 및 로그인
 driver = webdriver.Chrome(service=Service())
@@ -40,7 +40,7 @@ inputs = driver.find_elements(By.TAG_NAME, "input")
 inputs[0].send_keys(id)
 inputs[1].send_keys(pw)
 inputs[1].send_keys("\n")
-time.sleep(random.uniform(3, 6))
+time.sleep(random.uniform(50, 60))
 
 # "Not now" 버튼 클릭
 try:
@@ -49,6 +49,73 @@ try:
     ).click()
 except Exception as e:
     print("알림 창을 찾지 못했습니다:", e)
+
+
+follower_list = []
+
+def normalize_follower_count(raw):
+    if not raw:
+        return None
+    raw = raw.replace(",", "").strip()
+    try:
+        if "만" in raw:
+            return int(float(raw.replace("만", "")) * 10000)
+        else:
+            return int(raw)
+    except:
+        return None
+
+# 모든 insta_url을 순차적으로 방문하여 크롤링 수행
+for index, row in df.iterrows():
+    profile_url = row["insta_url"]
+
+    # URL에서 마지막 '/' 제거
+    if profile_url.endswith('/'):
+        profile_url = profile_url[:-1]
+
+    # 인플루언서 ID 추출
+    influencer_name = profile_url.replace("https://www.instagram.com/", "")
+
+    file_name = f"{base_folder}/influencers_list/influencers_list_{today}.xlsx"
+
+    driver.get(profile_url)
+    time.sleep(random.uniform(3, 6))
+
+    try:
+        follower_elem = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "li:nth-child(2) div a span.html-span.xdj266r"))
+        )
+        follower_text = follower_elem.text.strip()
+
+        normalized_count = normalize_follower_count(follower_text)
+
+        print(normalized_count)
+
+        # 리스트에 추가
+        follower_list.append({
+            "인플루언서": influencer_name,
+            "팔로워 수": normalized_count,
+            "데이터 수집일": today
+        })
+
+    except Exception as e:
+        print(f"{influencer_name} 크롤링 중 오류 발생:", e)
+
+    # DataFrame 생성
+df_follower = pd.DataFrame(follower_list)
+
+# 폴더 없으면 생성
+os.makedirs(f"influencers_list", exist_ok=True)
+
+# 엑셀 저장
+file_name = f"influencers_list/influencers_list_{today}.xlsx"
+df_follower.to_excel(file_name, index=False)
+
+print(f"팔로워 수 엑셀 저장 완료: {file_name}")
+
+
+
+
 
 # 모든 insta_url을 순차적으로 방문하여 크롤링 수행
 for index, row in df.iterrows():
@@ -172,13 +239,14 @@ for index, row in df.iterrows():
         # 각 게시물에 대해 추출된 데이터를 리스트에 저장
         for i in range(len(id_f)):
             all_comments_data.append({
-                "게시물 URL": post_url if i == 0 else "",  # 첫 번째 행만 표시
-                "게시물 날짜": date_of_upload.get_attribute("title") if i == 0 else "",  # 첫 번째 행만 표시
-                "게시물 좋아요 수": like_num.text.strip() if i == 0 else "",  # 첫 번째 행만 표시,
-                "댓글 수": comment_count[post_index] if i == 0 else "",  # 첫 번째 행만 표시 (올바른 댓글 수 할당)
+                "게시물 URL": post_url, #if i == 0 else "",  # 첫 번째 행만 표시
+                "게시물 날짜": date_of_upload.get_attribute("title"), #if i == 0 else "",  # 첫 번째 행만 표시
+                "게시물 좋아요 수": like_num.text.strip(), #if i == 0 else "",  # 첫 번째 행만 표시,
+                "댓글 수": comment_count[post_index], #if i == 0 else "",  # 첫 번째 행만 표시 (올바른 댓글 수 할당)
                 "작성자": id_f[i],
                 "댓글": rp_f[i],
-                "댓글 작성일": rt_f[i]
+                "댓글 작성일": rt_f[i],
+                "데이터 수집일": today
             })
 
     # DataFrame 생성
@@ -189,3 +257,5 @@ for index, row in df.iterrows():
     print(f"{username}의 크롤링 데이터가 저장되었습니다: {file_name}")
 
 driver.quit()
+
+

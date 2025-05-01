@@ -19,3 +19,43 @@ insert into InfluencersScore (name, followers, ffs, followersfeature, averagevie
 , averagelikes, date)
 value ("_ralral_", 1058000, 7, "10대-20대 여자", 100000, 500, 10000, '2025-04-03')
 
+
+---
+
+CREATE TABLE `influencer` (
+  `id` integer PRIMARY KEY,
+  `name` varchar(255)
+);
+
+CREATE TABLE `instagram_follower` (
+  `id` integer PRIMARY KEY,
+  `influencer_id` integer,
+  `follower_num` integer,
+  `created_at` timestamp
+);
+
+CREATE TABLE `instagram_post` (
+  `id` integer PRIMARY KEY,
+  `influencer_id` integer,
+  `url` varchar(255),
+  `posted_date` timestap,
+  `like_num` integer,
+  `comment_num` integer,
+  `created_at` timestamp
+);
+
+CREATE TABLE `instagram_post_detail` (
+  `id` integer PRIMARY KEY,
+  `post_id` integer,
+  `user_name` varchar(255),
+  `comment` varchar(255),
+  `commented_date` timestamp,
+  `created_at` timestamp
+);
+
+ALTER TABLE `instagram_post` ADD FOREIGN KEY (`influencer_id`) REFERENCES `influencer` (`id`);
+
+ALTER TABLE `instagram_follower` ADD FOREIGN KEY (`influencer_id`) REFERENCES `influencer` (`id`);
+
+ALTER TABLE `instagram_post_detail` ADD FOREIGN KEY (`post_id`) REFERENCES `instagram_post` (`id`);
+
