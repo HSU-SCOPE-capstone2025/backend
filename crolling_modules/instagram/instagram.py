@@ -1,5 +1,6 @@
 import os
 import random
+import requests
 from selenium import webdriver
 from datetime import datetime
 from selenium.webdriver.chrome.service import Service
@@ -14,6 +15,10 @@ from selenium.common.exceptions import TimeoutException
 import pandas as pd
 import time
 
+#스프링부트 주소
+influencer_url = "http://localhost:8080/instagram/influencer"
+posts_url = "http://localhost:8080/instagram/posts"
+
 # 크롤링 실행 날짜
 today = datetime.today().strftime('%Y-%m-%d')
 
@@ -26,7 +31,7 @@ file_path = "influencer_update.xlsx"  # 현재 폴더에 위치한 파일
 df = pd.read_excel(file_path)
 
 # n+2번째 행부터 끝까지 데이터 가져오기
-# df = df.iloc[12:]
+#df = df.iloc[12:]
 
 # 웹드라이버 초기화 및 로그인
 driver = webdriver.Chrome(service=Service())
@@ -34,13 +39,13 @@ driver.get("https://www.instagram.com/accounts/login/")
 time.sleep(random.uniform(3, 6))
 
 # 로그인 정보 입력
-id = ""
-pw = ""
+id = "" 
+pw = "" 
 inputs = driver.find_elements(By.TAG_NAME, "input")
 inputs[0].send_keys(id)
 inputs[1].send_keys(pw)
 inputs[1].send_keys("\n")
-time.sleep(random.uniform(50, 60))
+time.sleep(random.uniform(5, 6))
 
 # "Not now" 버튼 클릭
 try:
@@ -65,7 +70,7 @@ def normalize_follower_count(raw):
     except:
         return None
 
-# 모든 insta_url을 순차적으로 방문하여 크롤링 수행
+# # 모든 insta_url을 순차적으로 방문하여 크롤링 수행
 for index, row in df.iterrows():
     profile_url = row["insta_url"]
 
@@ -93,10 +98,17 @@ for index, row in df.iterrows():
 
         # 리스트에 추가
         follower_list.append({
-            "인플루언서": influencer_name,
-            "팔로워 수": normalized_count,
-            "데이터 수집일": today
+            "influencer": influencer_name,
+            "follower_number": normalized_count,
+            "at_time": today
         })
+
+        res = requests.post(influencer_url, json={
+            "influencer": influencer_name,
+            "follower_number": normalized_count,
+            "at_time": today
+        })
+        print(f"[POST] {influencer_name}: {res.status_code}")
 
     except Exception as e:
         print(f"{influencer_name} 크롤링 중 오류 발생:", e)
