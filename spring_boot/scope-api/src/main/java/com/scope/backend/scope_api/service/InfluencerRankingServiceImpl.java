@@ -69,7 +69,7 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
             List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum, pageable);
             Float youFss = youFssList.isEmpty() ? 0 : (float) youFssList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
             youFss /= 10;
-            
+
             List<Float> youLikeList = youtubeRepository.findLikeListByInfluencer(influencerNum, pageable);
             Float youAverageLikes = youLikeList.isEmpty() ? 0 : (float) youLikeList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
