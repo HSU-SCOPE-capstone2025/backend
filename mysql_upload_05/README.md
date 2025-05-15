@@ -1,107 +1,120 @@
-CREATE DATABASE IF NOT EXISTS scope
+
+# 📄 README: SNS 댓글 데이터 MySQL 업로드 가이드
+
+이 문서는 **YouTube, Instagram, TikTok 댓글 데이터를 MySQL에 업로드**하는 과정을 정리한 문서입니다.  
+각 플랫폼별 테이블 생성 SQL과 Python 업로드 스크립트 실행 순서를 포함합니다.
+
+---
+
+## ✅ 1. Instagram 댓글 업로드
+
+### 1-1. 테이블 구조 설정
+
+```sql
+ALTER TABLE instagram MODIFY post_url VARCHAR(500);
+
+ALTER TABLE instagram ADD UNIQUE (post_url);
+
+CREATE TABLE instagram_comment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_url VARCHAR(500),
+    comment TEXT,
+    comment_date DATE,
+    emotion TEXT,
+    topic TEXT,
+    cluster TEXT,
+    score INT,
+    fss FLOAT,
+    FOREIGN KEY (post_url) REFERENCES instagram(post_url)
+);
+```
+
+### 1-2. Python 스크립트 실행
+
+```bash
+python instagram_comments.py
+```
+
+---
+
+## ✅ 2. YouTube 댓글 업로드
+
+### 2-1. 테이블 구조 설정
+
+```sql
+ALTER TABLE youtube MODIFY video_url VARCHAR(191)
 CHARACTER SET utf8mb4
-COLLATE utf8mb4_general_ci;
+COLLATE utf8mb4_unicode_ci
+NOT NULL;
 
-CREATE TABLE influencer (
-  influencer_num INT PRIMARY KEY,
-  influencer_name VARCHAR(255),
-  categories VARCHAR(255),
-  tags VARCHAR(255)
-);
+ALTER TABLE youtube DROP INDEX idx_video_url;
+ALTER TABLE youtube ADD UNIQUE idx_video_url (video_url);
 
-CREATE TABLE youtube_video (
-  video_url VARCHAR(500) PRIMARY KEY,
-  upload_date DATE,
-  date DATE,
-  view_count INT,
-  like_count INT,
-  comment_count INT,
-  subscriber_count INT,
-  channel_url VARCHAR(500),
-  channel_title VARCHAR(255),
-  channel_description TEXT,
-  topic_categories VARCHAR(255),
-  title VARCHAR(255),
-  description TEXT,
-  tags VARCHAR(500),
-  thumbnails TEXT,
-  influencer_name VARCHAR(255),
-  influencer_num INT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
+CREATE TABLE youtube_comment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    video_url VARCHAR(191)
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci,
+    comment TEXT,
+    comment_date DATE,
+    emotion TEXT,
+    topic TEXT,
+    cluster TEXT,
+    score INT,
+    fss FLOAT,
+    FOREIGN KEY (video_url) REFERENCES youtube(video_url)
 );
+```
 
-CREATE TABLE tiktok_video (
-  video_url VARCHAR(500) PRIMARY KEY,
-  description TEXT,
-  like_count INT,
-  comment_count INT,
-  share_count INT,
-  upload_date DATE,
-  view_count INT,
-  follower_num INT,
-  user_id VARCHAR(255),
-  user_name VARCHAR(255),
-  influencer_name VARCHAR(255),
-  influencer_num INT,
-  influencer_url VARCHAR(500),
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+### 2-2. Python 스크립트 실행
 
-CREATE TABLE instagram_post (
-  post_url VARCHAR(500) PRIMARY KEY,
-  post_date DATE,
-  like_count INT,
-  comment_count INT,
-  at_time DATETIME,
-  follower_num INT,
-  user_id VARCHAR(255),
-  user_name VARCHAR(255),
-  influencer_url VARCHAR(500),
-  influencer_name VARCHAR(255),
-  influencer_num INT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+```bash
+python youtube_comments.py
+```
 
-CREATE TABLE ad_price_estimation (
-  influencer_num INT,
-  ad_price_range_insta VARCHAR(255),
-  ad_price_range_tiktok VARCHAR(255),
-  ad_price_range_youtube VARCHAR(255),
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+---
 
-CREATE TABLE total_followers (
-  influencer_num INT,
-  influencer_name VARCHAR(255),
-  platform VARCHAR(50),
-  date DATE,
-  subscriber_count INT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+## ✅ 3. TikTok 댓글 업로드
 
-CREATE TABLE youtube_language_summary (
-  influencer_num INT,
-  influencer_name VARCHAR(255),
-  language_code VARCHAR(50),
-  language_name VARCHAR(255),
-  percentage FLOAT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+### 3-1. 테이블 구조 설정
 
-CREATE TABLE tiktok_language_summary (
-  influencer_num INT,
-  influencer_name VARCHAR(255),
-  language_code VARCHAR(50),
-  language_name VARCHAR(255),
-  percentage FLOAT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
-);
+```sql
+ALTER TABLE tiktok
+MODIFY video_url VARCHAR(191)
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci
+NOT NULL;
 
-CREATE TABLE instagram_language_summary (
-  influencer_num INT,
-  influencer_name VARCHAR(255),
-  language_code VARCHAR(50),
-  language_name VARCHAR(255),
-  percentage FLOAT,
-  FOREIGN KEY (influencer_num) REFERENCES influencer(influencer_num)
+ALTER TABLE tiktok
+ADD UNIQUE idx_video_url (video_url);
+
+CREATE TABLE tiktok_comment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    video_url VARCHAR(191)
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci,
+    comment TEXT,
+    comment_date DATE,
+    emotion TEXT,
+    topic TEXT,
+    cluster TEXT,
+    score INT,
+    fss FLOAT,
+    FOREIGN KEY (video_url) REFERENCES tiktok(video_url)
 );
+```
+
+### 3-2. Python 스크립트 실행
+
+```bash
+python tiktok_commnets.py
+```
+
+---
+
+## 📌 참고 사항
+
+- 모든 `*_url` 필드는 외래 키 연결을 위해 반드시 **UNIQUE 인덱스**가 필요합니다.
+- 데이터가 많을 경우 `to_sql(..., chunksize=500)` 등의 옵션을 주어 부분 업로드를 권장합니다.
+- `utf8mb4` 및 `utf8mb4_unicode_ci` 설정은 **이모지, 다국어 처리**를 위한 필수 설정입니다.
+- 스크립트 실행 전 반드시 **MySQL 서버가 실행 중인지 확인**하고, 해당 데이터베이스(`test0514`)가 생성되어 있어야 합니다.
