@@ -1,0 +1,33 @@
+package com.scope.backend.scope_api.repository.frontend;
+
+import com.scope.backend.scope_api.domain.frontend.Instagram;
+import com.scope.backend.scope_api.domain.frontend.InstagramComment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+@Repository
+public interface InstagramRepository extends JpaRepository<Instagram, String> {
+
+    // ✅ 최근 7개의 게시글의 FSS 리스트로 가져오기
+    @Query("""
+        SELECT c.fss 
+        FROM Instagram i 
+        JOIN InstagramComment c ON i.postUrl = c.instagram.postUrl 
+        WHERE i.influencer.influencerNum = :influencerNum 
+        ORDER BY i.postDate DESC
+    """)
+    List<Float> findFSSListByInfluencer(Long influencerNum, Pageable pageable);
+
+    // ✅ 최근 7개의 게시글의 좋아요 리스트로 가져오기
+    @Query("""
+        SELECT i.likeCount 
+        FROM Instagram i 
+        WHERE i.influencer.influencerNum = :influencerNum 
+        ORDER BY i.postDate DESC
+    """)
+    List<Float> findLikeListByInfluencer(Long influencerNum, Pageable pageable);
+}

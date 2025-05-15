@@ -16,8 +16,8 @@ public class InstagramComment {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "ffs")
-    private Float ffs;
+    @Column(name = "fss")
+    private Float fss;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_url")

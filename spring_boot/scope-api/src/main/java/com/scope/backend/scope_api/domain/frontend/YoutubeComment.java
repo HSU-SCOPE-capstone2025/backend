@@ -38,7 +38,7 @@ public class YoutubeComment {
     private int score;
 
     @Column(name = "fss")
-    private Float ffs;
+    private Float fss;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_url")

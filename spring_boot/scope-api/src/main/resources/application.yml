@@ -12,4 +12,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+        dialect: org.hibernate.dialect.MySQLDialect   # MySQL 8.0 Dialect 명시
+        connection:
+          readOnly: true    # DB를 읽기 전용으로 설정
+    open-in-view: false       # Open Session in View 비활성화
