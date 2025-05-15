@@ -1,6 +1,7 @@
 import os
 import random
 import requests
+import json
 from selenium import webdriver
 from datetime import datetime
 from selenium.webdriver.chrome.service import Service
@@ -18,6 +19,7 @@ import time
 #스프링부트 주소
 influencer_url = "http://localhost:8080/instagram/influencer"
 posts_url = "http://localhost:8080/instagram/posts"
+post_details_url = "http://localhost:8080/instagram/post-details"
 
 # 크롤링 실행 날짜
 today = datetime.today().strftime('%Y-%m-%d')
@@ -39,8 +41,8 @@ driver.get("https://www.instagram.com/accounts/login/")
 time.sleep(random.uniform(3, 6))
 
 # 로그인 정보 입력
-id = "" 
-pw = "" 
+id = "tla1503@hansung.ac.kr" #"tla1503@naver.com" # tla1503@hansung.ac.kr
+pw = "TLArbqh45!@" #"tlarbqh129!" #TLArbqh45!@
 inputs = driver.find_elements(By.TAG_NAME, "input")
 inputs[0].send_keys(id)
 inputs[1].send_keys(pw)
@@ -58,7 +60,7 @@ except Exception as e:
 
 follower_list = []
 
-def normalize_follower_count(raw):
+def normalize(raw):
     if not raw:
         return None
     raw = raw.replace(",", "").strip()
@@ -71,62 +73,80 @@ def normalize_follower_count(raw):
         return None
 
 # # 모든 insta_url을 순차적으로 방문하여 크롤링 수행
-for index, row in df.iterrows():
-    profile_url = row["insta_url"]
+# for index, row in df.iterrows():
+#     profile_url = row["insta_url"]
 
-    # URL에서 마지막 '/' 제거
-    if profile_url.endswith('/'):
-        profile_url = profile_url[:-1]
+#     # URL에서 마지막 '/' 제거
+#     if profile_url.endswith('/'):
+#         profile_url = profile_url[:-1]
 
-    # 인플루언서 ID 추출
-    influencer_name = profile_url.replace("https://www.instagram.com/", "")
+#     # 인플루언서 ID 추출
+#     influencer_name = profile_url.replace("https://www.instagram.com/", "")
 
-    file_name = f"{base_folder}/influencers_list/influencers_list_{today}.xlsx"
+#     file_name = f"{base_folder}/influencers_list/influencers_list_{today}.xlsx"
 
-    driver.get(profile_url)
-    time.sleep(random.uniform(3, 6))
+#     driver.get(profile_url)
+#     time.sleep(random.uniform(3, 6))
 
-    try:
-        follower_elem = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "li:nth-child(2) div a span.html-span.xdj266r"))
-        )
-        follower_text = follower_elem.text.strip()
+#     try:
+#         follower_elem = WebDriverWait(driver, 10).until(
+#         EC.presence_of_element_located((By.CSS_SELECTOR, "li:nth-child(2) div a span.html-span.xdj266r"))
+#         )
+#         follower_text = follower_elem.text.strip()
 
-        normalized_count = normalize_follower_count(follower_text)
+#         normalized_count = normalize(follower_text)
 
-        print(normalized_count)
+#         print(normalized_count)
 
-        # 리스트에 추가
-        follower_list.append({
-            "influencer": influencer_name,
-            "follower_number": normalized_count,
-            "at_time": today
-        })
+#         # 리스트에 추가
+#         follower_list.append({
+#             "influencer": influencer_name,
+#             "follower_number": normalized_count,
+#             "at_time": today
+#         })
 
-        res = requests.post(influencer_url, json={
-            "influencer": influencer_name,
-            "follower_number": normalized_count,
-            "at_time": today
-        })
-        print(f"[POST] {influencer_name}: {res.status_code}")
+#         res = requests.post(influencer_url, json={
+#             "influencer": influencer_name,
+#             "follower_number": normalized_count,
+#             "at_time": today
+#         })
+#         print(f"[POST] {influencer_name}: {res.status_code}")
 
-    except Exception as e:
-        print(f"{influencer_name} 크롤링 중 오류 발생:", e)
+#     except Exception as e:
+#         print(f"{influencer_name} 크롤링 중 오류 발생:", e)
 
-    # DataFrame 생성
-df_follower = pd.DataFrame(follower_list)
+#     # DataFrame 생성
+# df_follower = pd.DataFrame(follower_list)
 
-# 폴더 없으면 생성
-os.makedirs(f"influencers_list", exist_ok=True)
+# # 폴더 없으면 생성
+# os.makedirs(f"influencers_list", exist_ok=True)
 
-# 엑셀 저장
-file_name = f"influencers_list/influencers_list_{today}.xlsx"
-df_follower.to_excel(file_name, index=False)
+# # 엑셀 저장
+# file_name = f"influencers_list/influencers_list_{today}.xlsx"
+# df_follower.to_excel(file_name, index=False)
 
-print(f"팔로워 수 엑셀 저장 완료: {file_name}")
+# print(f"팔로워 수 엑셀 저장 완료: {file_name}")
 
 
+#  게시글 데이터 전송 함수
+def send_post_data(post_data):
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(posts_url, headers=headers, data=json.dumps(post_data))
+    if response.status_code == 200:
+        print(f"성공 [POST SUCCESS] - 게시글: {post_data['url']}")
+        return response.json().get("postId")  # Spring Boot에서 저장된 post ID 리턴받기
+    else:
+        print(f"실패 [POST FAIL] - 게시글: {post_data['url']} - Status: {response.status_code}")
+        return None
 
+#  댓글 데이터 전송 함수
+def send_post_detail_data(detail_data):
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(post_details_url, headers=headers, data=json.dumps(detail_data))
+    if response.status_code == 200:
+        print(f"성공 [POST SUCCESS] - 댓글 작성자: {detail_data['user_name']}")
+    else:
+        print(f"실패 [POST FAIL] - 댓글 작성자: {detail_data['user_name']} - Status: {response.status_code}")
 
 
 # 모든 insta_url을 순차적으로 방문하여 크롤링 수행
@@ -199,7 +219,7 @@ for index, row in df.iterrows():
     all_comments_data = []
 
 
-
+    number = 1
 
     # 각 게시물로 이동해 댓글 크롤링
     for post_url in post_urls:
@@ -247,6 +267,33 @@ for index, row in df.iterrows():
         
         # 현재 게시물의 index 찾기
         post_index = post_urls.index(post_url)
+        
+
+        normalize_like_num =normalize(like_num.text.strip())
+        normalize_comment_num = normalize(comment_count[post_index])
+
+        print(f"크롤링된 좋아요 수: {normalize_like_num}")
+        print(f"크롤링된 댓글 수: {normalize_comment_num}")
+
+       
+
+        # 📌 게시글 데이터를 전송 (댓글과 별도로)
+        
+        
+        parsed_date = datetime.strptime(date_of_upload.get_attribute("title"), "%Y년 %m월 %d일")
+        # 시간 정보를 제거하고 ISO-8601 형식으로 변경
+        formatted_date = parsed_date.strftime('%Y-%m-%d')
+        post_data = {
+            "influencerId": number,
+            "url": post_url,
+            "postedDate": formatted_date,
+            "likeNum": normalize_like_num,
+            "commentNum":  normalize_comment_num,
+            "createdAt": today
+            }   
+    
+        # Spring Boot에 전송 후 ID 받기
+        post_id = send_post_data(post_data)
 
         # 각 게시물에 대해 추출된 데이터를 리스트에 저장
         for i in range(len(id_f)):
@@ -260,6 +307,8 @@ for index, row in df.iterrows():
                 "댓글 작성일": rt_f[i],
                 "데이터 수집일": today
             })
+
+        number = number + 1
 
     # DataFrame 생성
     df = pd.DataFrame(all_comments_data)

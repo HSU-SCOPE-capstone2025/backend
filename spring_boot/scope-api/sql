@@ -2,21 +2,21 @@ create database rds;
 
 use rds;
 
-create table InfluencersScore(
+create table influencers_score(
 id int not null AUTO_INCREMENT,
 name varchar(255),
 followers int,
 ffs int,
-followersFeature varchar(255),
-averageViews int,
-averageComments int,
-averageLikes int,
+followers_feature varchar(255),
+average_views int,
+average_comments int,
+average_likes int,
 date date,
 PRIMARY KEY (ID)
 )
 
-insert into InfluencersScore (name, followers, ffs, followersfeature, averageviews, averagecomments
-, averagelikes, date)
+insert into influencers_score (name, followers, ffs, followers_feature, average_views, average_comments
+, average_likes, date)
 value ("_ralral_", 1058000, 7, "10대-20대 여자", 100000, 500, 10000, '2025-04-03')
 
 
