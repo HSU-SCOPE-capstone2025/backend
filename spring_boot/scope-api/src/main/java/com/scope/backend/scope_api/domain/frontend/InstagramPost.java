@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "instagram_post")
 @Getter
@@ -30,4 +32,7 @@ public class InstagramPost {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "influencer_num")
     private Influencer influencer;
+
+    @Column(name = "at_time")
+    private Date atTime;
 }

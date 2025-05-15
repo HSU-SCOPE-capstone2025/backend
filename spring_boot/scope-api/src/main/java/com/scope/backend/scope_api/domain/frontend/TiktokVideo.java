@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "tiktok_video")
 @Getter
@@ -30,5 +32,8 @@ public class TiktokVideo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "influencer_num")
     private Influencer influencer;
+
+    @Column(name = "upload_date")
+    private Date uploadDate;
 }
 

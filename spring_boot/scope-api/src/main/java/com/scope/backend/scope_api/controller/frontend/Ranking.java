@@ -1,7 +1,6 @@
 package com.scope.backend.scope_api.controller.frontend;
 
 import com.scope.backend.scope_api.domain.frontend.InfluencersScore;
-import com.scope.backend.scope_api.repository.frontend.InfluencerScoreRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
