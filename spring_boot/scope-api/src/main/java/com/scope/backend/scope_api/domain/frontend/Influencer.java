@@ -1,44 +1,41 @@
 package com.scope.backend.scope_api.domain.frontend;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "influencer")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Influencer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "influencer_num")
+    private Long influencerNum;
 
+    @Column(name = "influencer_name")
     private String name;
 
-    @ElementCollection
-    @CollectionTable(name = "influencer_tags", joinColumns = @JoinColumn(name = "influencer_id"))
-    @Column(name = "tag")
-    private List<String> tags;
+    @Column(name = "tags")
+    private String tags;
 
-    @ElementCollection
-    @CollectionTable(name = "influencer_categories", joinColumns = @JoinColumn(name = "influencer_id"))
-    @Column(name = "category")
-    private List<String> categories;
-
-    private long instaFollowers;
-    private long tikFollowers;
-    private long youFollowers;
+    @Column(name = "categories")
+    private String categories;
 
     @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Instagram> instagrams;
 
     @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<TikTok> tiktoks;
+    private List<Tiktok> tiktoks;
 
     @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<YouTube> youtubes;
+    private List<Youtube> youtubes;
+
+    @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TotalFollower> totalFollowers;
 }

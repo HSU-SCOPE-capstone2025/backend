@@ -1,27 +1,25 @@
 package com.scope.backend.scope_api.domain.frontend;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "instagram_comment")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class InstagramComment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "instagram_id")
-    private Instagram instagram;
+    @Column(name = "ffs")
+    private Float ffs;
 
-    private String commentText;
-    private int ffs; // Follower Supporter Score
-    private LocalDate commentDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_url")
+    private Instagram instagram;
 }

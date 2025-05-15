@@ -9,20 +9,24 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "instagram")
+@Table(name = "total_follower")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Instagram {
+public class TotalFollower {
     @Id
-    @Column(name = "post_url")
-    private String postUrl;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    @Column(name = "post_date")
-    private LocalDate postDate;
+    @Column(name = "platform")
+    private String platform;
 
-    @Column(name = "like_count")
-    private int likeCount;
+    @Column(name = "date")
+    private LocalDate date;
+
+    @Column(name = "subscriber_count")
+    private Long subscriberCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "influencer_num")
