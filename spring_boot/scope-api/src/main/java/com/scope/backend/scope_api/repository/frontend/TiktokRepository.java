@@ -1,5 +1,6 @@
 package com.scope.backend.scope_api.repository.frontend;
 
+import com.scope.backend.scope_api.domain.frontend.Instagram;
 import com.scope.backend.scope_api.domain.frontend.Tiktok;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -7,9 +8,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TiktokRepository extends JpaRepository<Tiktok, String> {
+
+    Optional<Tiktok> findFirstByInfluencer_InfluencerNum(Long influencerNum);
+    List<Tiktok> findAllByInfluencer_InfluencerNum(Long influencerNum);
+    Optional<Tiktok> findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(Long influencerNum);
 
     // ✅ 최근 7개의 비디오의 FSS 리스트로 가져오기
     @Query("""

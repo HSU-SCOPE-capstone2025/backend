@@ -8,9 +8,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InstagramRepository extends JpaRepository<Instagram, String> {
+    Optional<Instagram> findFirstByInfluencer_InfluencerNum(Long influencerNum);
+    List<Instagram> findAllByInfluencer_InfluencerNum(Long influencerNum);
+    Optional<Instagram> findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(Long influencerNum);
+
 
     // ✅ 최근 7개의 게시글의 FSS 리스트로 가져오기
     @Query("""

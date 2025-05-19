@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "influencer")
 @Data
+
 @AllArgsConstructor
 @NoArgsConstructor
 public class Influencer {
@@ -38,4 +39,11 @@ public class Influencer {
 
     @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TotalFollower> totalFollowers;
+
+    @OneToOne(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private AdPrice adPrice;
+
+    public String getInfluencerName() {
+        return name;
+    }
 }

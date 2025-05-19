@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "instagram_comment")
 @Data
@@ -19,7 +21,16 @@ public class InstagramComment {
     @Column(name = "fss")
     private Float fss;
 
+    @Column(name = "comment")
+    private String comment;
+
+    @Column(name = "comment_date")
+    private LocalDate commentDate;
+
+    @Column(name = "cluster")
+    private String cluster;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_url")
+    @JoinColumn(name = "post_url", referencedColumnName = "post_url")  // 명시적으로 매핑
     private Instagram instagram;
 }

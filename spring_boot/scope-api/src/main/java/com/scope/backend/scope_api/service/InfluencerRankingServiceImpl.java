@@ -50,7 +50,8 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
             List<Float> instaLikeList = instagramRepository.findLikeListByInfluencer(influencerNum, pageable);
             Float instaAverageLikes = instaLikeList.isEmpty() ? 0 : (float) instaLikeList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
-            Long instaFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Instagram");
+            Long instaFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Instagram")
+                    .stream().findFirst().orElse(0L);
 
             // 🔹 Tiktok 데이터 조회
             List<Float> tikFssList = tiktokRepository.findFSSListByInfluencer(influencerNum, pageable);
@@ -63,7 +64,8 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
             List<Float> tikViewList = tiktokRepository.findViewListByInfluencer(influencerNum, pageable);
             Float tikAverageViews = tikViewList.isEmpty() ? 0 : (float) tikViewList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
-            Long tikFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Tiktok");
+            Long tikFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Tiktok")
+                    .stream().findFirst().orElse(0L);
 
             // 🔹 Youtube 데이터 조회
             List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum, pageable);
@@ -76,7 +78,8 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
             List<Float> youViewList = youtubeRepository.findViewListByInfluencer(influencerNum, pageable);
             Float youAverageViews = youViewList.isEmpty() ? 0 : (float) youViewList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
-            Long youFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "YouTube");
+            Long youFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "YouTube")
+                    .stream().findFirst().orElse(0L);
 
             // 🔹 DTO 생성
             return InfluencerRankingResponse.builder()

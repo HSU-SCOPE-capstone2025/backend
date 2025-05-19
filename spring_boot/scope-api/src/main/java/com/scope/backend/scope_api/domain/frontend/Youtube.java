@@ -4,6 +4,7 @@ package com.scope.backend.scope_api.domain.frontend;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "youtube")
+@Getter
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
