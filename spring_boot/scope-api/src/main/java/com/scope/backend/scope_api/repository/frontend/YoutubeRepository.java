@@ -36,6 +36,13 @@ public interface YoutubeRepository extends JpaRepository<Youtube, String> {
     """)
     List<Float> findLikeListByInfluencer(Long influencerNum);
 
+    @Query("""
+        SELECT y.commentCount
+        FROM Youtube y
+        WHERE y.influencer.influencerNum = :influencerNum
+    """)
+    List<Float> findCommentCountListByInfluencer(Long influencerNum);
+
 
     @Query("""
         SELECT y.viewCount 

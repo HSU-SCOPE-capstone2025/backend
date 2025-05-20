@@ -29,6 +29,9 @@ public class Instagram {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "comment_count")
+    private Long commentCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "influencer_num")
     private Influencer influencer;

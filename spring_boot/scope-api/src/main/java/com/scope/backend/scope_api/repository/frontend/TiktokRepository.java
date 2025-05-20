@@ -36,6 +36,13 @@ public interface TiktokRepository extends JpaRepository<Tiktok, String> {
     """)
     List<Float> findLikeListByInfluencer(Long influencerNum);
 
+    @Query("""
+        SELECT t.commentCount
+        FROM Tiktok t
+        WHERE t.influencer.influencerNum = :influencerNum
+    """)
+    List<Float> findCommentCountListByInfluencer(Long influencerNum);
+
 
     @Query("""
         SELECT t.viewCount 

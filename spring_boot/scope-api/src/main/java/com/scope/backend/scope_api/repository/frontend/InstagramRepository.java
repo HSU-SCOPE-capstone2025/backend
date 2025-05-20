@@ -28,6 +28,13 @@ public interface InstagramRepository extends JpaRepository<Instagram, String> {
     List<Float> findFSSListByInfluencer(Long influencerNum);
 
     @Query("""
+        SELECT i.commentCount
+        FROM Instagram i
+        WHERE i.influencer.influencerNum = :influencerNum
+    """)
+    List<Float> findCommentCountListByInfluencer(Long influencerNum);
+
+    @Query("""
         SELECT i.likeCount 
         FROM Instagram i 
         WHERE i.influencer.influencerNum = :influencerNum 
