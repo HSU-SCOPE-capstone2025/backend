@@ -45,15 +45,15 @@ public class InfluencerRecommendService {
                 .map(Tiktok::getUserId).orElse(null);
 
         // ✅ FSS 평균 계산
-        List<Float> instaFssList = instagramRepository.findFSSListByInfluencer(influencerNum, pageable);
+        List<Float> instaFssList = instagramRepository.findFSSListByInfluencer(influencerNum);
         float instaFss = instaFssList.isEmpty() ? 0 : (float) instaFssList.stream()
                 .mapToDouble(Float::doubleValue).average().orElse(0.0) / 10;
 
-        List<Float> tikFssList = tiktokRepository.findFSSListByInfluencer(influencerNum, pageable);
+        List<Float> tikFssList = tiktokRepository.findFSSListByInfluencer(influencerNum);
         float tikFss = tikFssList.isEmpty() ? 0 : (float) tikFssList.stream()
                 .mapToDouble(Float::doubleValue).average().orElse(0.0) / 10;
 
-        List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum, pageable);
+        List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum);
         float youFss = youFssList.isEmpty() ? 0 : (float) youFssList.stream()
                 .mapToDouble(Float::doubleValue).average().orElse(0.0) / 10;
 

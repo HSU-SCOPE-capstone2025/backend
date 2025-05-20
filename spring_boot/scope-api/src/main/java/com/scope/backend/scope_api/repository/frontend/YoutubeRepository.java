@@ -17,7 +17,7 @@ public interface YoutubeRepository extends JpaRepository<Youtube, String> {
     List<Youtube> findAllByInfluencer_InfluencerNum(Long influencerNum);
     Optional<Youtube> findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 FSS 리스트로 가져오기
+
     @Query("""
         SELECT c.fss 
         FROM Youtube y 
@@ -25,24 +25,24 @@ public interface YoutubeRepository extends JpaRepository<Youtube, String> {
         WHERE y.influencer.influencerNum = :influencerNum 
         ORDER BY y.uploadDate DESC
     """)
-    List<Float> findFSSListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findFSSListByInfluencer(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 좋아요 리스트로 가져오기
+
     @Query("""
         SELECT y.likeCount 
         FROM Youtube y 
         WHERE y.influencer.influencerNum = :influencerNum 
         ORDER BY y.uploadDate DESC
     """)
-    List<Float> findLikeListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findLikeListByInfluencer(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 조회수 리스트로 가져오기
+
     @Query("""
         SELECT y.viewCount 
         FROM Youtube y 
         WHERE y.influencer.influencerNum = :influencerNum 
         ORDER BY y.uploadDate DESC
     """)
-    List<Float> findViewListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findViewListByInfluencer(Long influencerNum);
 
 }

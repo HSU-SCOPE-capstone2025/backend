@@ -35,47 +35,45 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
         // 1️⃣ 모든 Influencer 가져오기
         List<Influencer> influencers = influencerRepository.findAll();
 
-        // 페이지 설정 (최신 7개만 가져오기)
-        Pageable pageable = PageRequest.of(0, 7);
 
         // 2️⃣ 각 Influencer 정보 매핑
         return influencers.stream().map(influencer -> {
             Long influencerNum = influencer.getInfluencerNum();
 
             // 🔹 Instagram 데이터 조회
-            List<Float> instaFssList = instagramRepository.findFSSListByInfluencer(influencerNum, pageable);
+            List<Float> instaFssList = instagramRepository.findFSSListByInfluencer(influencerNum);
             Float instaFss = instaFssList.isEmpty() ? 0 : (float) instaFssList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
             instaFss /= 10;
 
-            List<Float> instaLikeList = instagramRepository.findLikeListByInfluencer(influencerNum, pageable);
+            List<Float> instaLikeList = instagramRepository.findLikeListByInfluencer(influencerNum);
             Float instaAverageLikes = instaLikeList.isEmpty() ? 0 : (float) instaLikeList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
             Long instaFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Instagram")
                     .stream().findFirst().orElse(0L);
 
             // 🔹 Tiktok 데이터 조회
-            List<Float> tikFssList = tiktokRepository.findFSSListByInfluencer(influencerNum, pageable);
+            List<Float> tikFssList = tiktokRepository.findFSSListByInfluencer(influencerNum);
             Float tikFss = tikFssList.isEmpty() ? 0 : (float) tikFssList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
             tikFss /= 10;
 
-            List<Float> tikLikeList = tiktokRepository.findLikeListByInfluencer(influencerNum, pageable);
+            List<Float> tikLikeList = tiktokRepository.findLikeListByInfluencer(influencerNum);
             Float tikAverageLikes = tikLikeList.isEmpty() ? 0 : (float) tikLikeList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
-            List<Float> tikViewList = tiktokRepository.findViewListByInfluencer(influencerNum, pageable);
+            List<Float> tikViewList = tiktokRepository.findViewListByInfluencer(influencerNum);
             Float tikAverageViews = tikViewList.isEmpty() ? 0 : (float) tikViewList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
             Long tikFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "Tiktok")
                     .stream().findFirst().orElse(0L);
 
             // 🔹 Youtube 데이터 조회
-            List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum, pageable);
+            List<Float> youFssList = youtubeRepository.findFSSListByInfluencer(influencerNum);
             Float youFss = youFssList.isEmpty() ? 0 : (float) youFssList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
             youFss /= 10;
 
-            List<Float> youLikeList = youtubeRepository.findLikeListByInfluencer(influencerNum, pageable);
+            List<Float> youLikeList = youtubeRepository.findLikeListByInfluencer(influencerNum);
             Float youAverageLikes = youLikeList.isEmpty() ? 0 : (float) youLikeList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
-            List<Float> youViewList = youtubeRepository.findViewListByInfluencer(influencerNum, pageable);
+            List<Float> youViewList = youtubeRepository.findViewListByInfluencer(influencerNum);
             Float youAverageViews = youViewList.isEmpty() ? 0 : (float) youViewList.stream().mapToDouble(Float::doubleValue).average().orElse(0.0);
 
             Long youFollowers = totalFollowerRepository.findLatestFollowerCount(influencerNum, "YouTube")

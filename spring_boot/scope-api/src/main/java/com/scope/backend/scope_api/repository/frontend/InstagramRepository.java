@@ -17,7 +17,7 @@ public interface InstagramRepository extends JpaRepository<Instagram, String> {
     Optional<Instagram> findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(Long influencerNum);
 
 
-    // ✅ 최근 7개의 게시글의 FSS 리스트로 가져오기
+
     @Query("""
         SELECT c.fss 
         FROM Instagram i 
@@ -25,14 +25,13 @@ public interface InstagramRepository extends JpaRepository<Instagram, String> {
         WHERE i.influencer.influencerNum = :influencerNum 
         ORDER BY i.postDate DESC
     """)
-    List<Float> findFSSListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findFSSListByInfluencer(Long influencerNum);
 
-    // ✅ 최근 7개의 게시글의 좋아요 리스트로 가져오기
     @Query("""
         SELECT i.likeCount 
         FROM Instagram i 
         WHERE i.influencer.influencerNum = :influencerNum 
         ORDER BY i.postDate DESC
     """)
-    List<Float> findLikeListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findLikeListByInfluencer(Long influencerNum);
 }

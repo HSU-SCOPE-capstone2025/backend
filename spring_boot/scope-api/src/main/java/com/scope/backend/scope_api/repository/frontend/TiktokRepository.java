@@ -17,7 +17,7 @@ public interface TiktokRepository extends JpaRepository<Tiktok, String> {
     List<Tiktok> findAllByInfluencer_InfluencerNum(Long influencerNum);
     Optional<Tiktok> findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 FSS 리스트로 가져오기
+
     @Query("""
         SELECT c.fss 
         FROM Tiktok t 
@@ -25,23 +25,23 @@ public interface TiktokRepository extends JpaRepository<Tiktok, String> {
         WHERE t.influencer.influencerNum = :influencerNum 
         ORDER BY t.uploadDate DESC
     """)
-    List<Float> findFSSListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findFSSListByInfluencer(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 좋아요 리스트로 가져오기
+
     @Query("""
         SELECT t.likeCount 
         FROM Tiktok t 
         WHERE t.influencer.influencerNum = :influencerNum 
         ORDER BY t.uploadDate DESC
     """)
-    List<Float> findLikeListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findLikeListByInfluencer(Long influencerNum);
 
-    // ✅ 최근 7개의 비디오의 조회수 리스트로 가져오기
+
     @Query("""
         SELECT t.viewCount 
         FROM Tiktok t 
         WHERE t.influencer.influencerNum = :influencerNum 
         ORDER BY t.uploadDate DESC
     """)
-    List<Float> findViewListByInfluencer(Long influencerNum, Pageable pageable);
+    List<Float> findViewListByInfluencer(Long influencerNum);
 }
