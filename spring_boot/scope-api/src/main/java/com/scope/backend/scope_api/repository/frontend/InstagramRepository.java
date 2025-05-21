@@ -16,6 +16,8 @@ public interface InstagramRepository extends JpaRepository<Instagram, String> {
     List<Instagram> findAllByInfluencer_InfluencerNum(Long influencerNum);
     Optional<Instagram> findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(Long influencerNum);
 
+    Optional<Instagram> findFirstByUserId(String userId);
+
 
 
     @Query("""

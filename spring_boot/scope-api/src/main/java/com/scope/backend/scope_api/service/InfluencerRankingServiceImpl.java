@@ -1,6 +1,9 @@
 package com.scope.backend.scope_api.service;
 
 import com.scope.backend.scope_api.domain.frontend.Influencer;
+import com.scope.backend.scope_api.domain.frontend.Instagram;
+import com.scope.backend.scope_api.domain.frontend.Tiktok;
+import com.scope.backend.scope_api.domain.frontend.Youtube;
 import com.scope.backend.scope_api.dto.frontend.InfluencerRankingResponse;
 import com.scope.backend.scope_api.repository.frontend.*;
 import com.scope.backend.scope_api.service.instagram.InfluencerRankingService;
@@ -39,6 +42,16 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
         // 2️⃣ 각 Influencer 정보 매핑
         return influencers.stream().map(influencer -> {
             Long influencerNum = influencer.getInfluencerNum();
+
+            // ✅ 플랫폼 별 사용자명 조회
+            String instaName = instagramRepository.findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(influencerNum)
+                    .map(Instagram::getUserId).orElse(null);
+
+            String youName = youtubeRepository.findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(influencerNum)
+                    .map(Youtube::getChannelTitle).orElse(null);
+
+            String tikName = tiktokRepository.findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(influencerNum)
+                    .map(Tiktok::getUserId).orElse(null);
 
             // 🔹 Instagram 데이터 조회
             List<Float> instaFssList = instagramRepository.findFSSListByInfluencer(influencerNum);
@@ -82,6 +95,9 @@ public class InfluencerRankingServiceImpl implements InfluencerRankingService {
             // 🔹 DTO 생성
             return InfluencerRankingResponse.builder()
                     .name(influencer.getName())
+                    .instaName(instaName)
+                    .youName(youName)
+                    .tikName(tikName)
                     .tags(influencer.getTags())
                     .categories(influencer.getCategories())
                     .instaFss(instaFss)

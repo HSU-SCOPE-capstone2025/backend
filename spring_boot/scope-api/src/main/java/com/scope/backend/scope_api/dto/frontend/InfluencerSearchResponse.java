@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InfluencerSearchResponse {
     private String name;
+    private String instaName;
+    private String youName;
+    private String tikName;
     private String tags;
     private String categories;
 

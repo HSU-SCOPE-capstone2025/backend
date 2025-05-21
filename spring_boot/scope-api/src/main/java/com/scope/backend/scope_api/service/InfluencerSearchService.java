@@ -1,5 +1,8 @@
 package com.scope.backend.scope_api.service;
 
+import com.scope.backend.scope_api.domain.frontend.Instagram;
+import com.scope.backend.scope_api.domain.frontend.Tiktok;
+import com.scope.backend.scope_api.domain.frontend.Youtube;
 import com.scope.backend.scope_api.dto.frontend.InfluencerSearchResponse;
 import com.scope.backend.scope_api.repository.frontend.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,14 @@ public class InfluencerSearchService {
         return influencerRepository.findAll().stream().map(influencer -> {
             Long num = influencer.getInfluencerNum();
 
+            // ✅ SNS별 이름
+            String instaName = instagramRepository.findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(num)
+                    .map(Instagram::getUserId).orElse(null);
+            String youName = youtubeRepository.findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(num)
+                    .map(Youtube::getChannelTitle).orElse(null);
+            String tikName = tiktokRepository.findFirstByInfluencer_InfluencerNumOrderByUploadDateDesc(num)
+                    .map(Tiktok::getUserId).orElse(null);
+
             // 평균 댓글 계산
             Float instaAvgComment = avg(instagramRepository.findCommentCountListByInfluencer(num));
             Float tikAvgComment = avg(tiktokRepository.findCommentCountListByInfluencer(num));
@@ -33,6 +44,9 @@ public class InfluencerSearchService {
 
             return InfluencerSearchResponse.builder()
                     .name(influencer.getName())
+                    .instaName(instaName)
+                    .youName(youName)
+                    .tikName(tikName)
                     .tags(influencer.getTags())
                     .categories(influencer.getCategories())
                     .instaFss(getFss(instagramRepository.findFSSListByInfluencer(num)))

@@ -32,7 +32,6 @@ public class InfluencerRecommendService {
 
     private InfluencerRecommendDto buildDto(Influencer influencer) {
         Long influencerNum = influencer.getInfluencerNum();
-        Pageable pageable = PageRequest.of(0, 7);
 
         // ✅ 플랫폼 별 사용자명 조회
         String instaName = instagramRepository.findFirstByInfluencer_InfluencerNumOrderByPostDateDesc(influencerNum)
