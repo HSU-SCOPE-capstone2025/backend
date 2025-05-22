@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -29,6 +30,17 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
     private final YoutubeCommentRepository youtubeCommentRepository;
     private final TotalFollowerRepository totalFollowerRepository;
     private final AdPriceRepository adPriceRepository;
+
+    private static final Map<String, String> CLUSTER_KOR_MAP = Map.of(
+            "Aggressive", "공격적인",
+            "Supportive", "지지하는",
+            "Neutral Informative", "정보제공형",
+            "Playful", "유쾌함",
+            "Analytical", "분석적",
+            "Spam/Promotional", "스팸",
+            "Empathetic", "공감하는",
+            "Sarcastic/Playful", "쾌활함"
+    );
 
     @Override
     public InfluencerSnsSummaryDto getSnsSummary(String userId) {
@@ -51,6 +63,12 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
         PlatformSummaryDto tiktok = makeTiktokDto(influencerNum, userId);
         PlatformSummaryDto youtube = makeYoutubeDto(influencerNum, userId);
 
+        FollowerHistoryDto followerHistory = new FollowerHistoryDto(
+                getFollowerHistoryList(influencerNum, "Instagram"),
+                getFollowerHistoryList(influencerNum, "Tiktok"),
+                getFollowerHistoryList(influencerNum, "YouTube")
+        );
+
         SnsDto sns = new SnsDto(instagram, youtube, tiktok);
         return new InfluencerSnsSummaryDto(
                 influencer.getName(),
@@ -59,6 +77,7 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
                 tikId,
                 tags,
                 categories,
+                followerHistory, // ✅ followers 필드에 넣기
                 sns
         );
     }
@@ -163,7 +182,10 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
     private String findTopCluster(List<Object[]> counts) {
         return counts.stream()
                 .max(Comparator.comparingLong(o -> (Long) o[1]))
-                .map(o -> o[0].toString())
+                .map(o -> {
+                    String eng = o[0].toString();
+                    return CLUSTER_KOR_MAP.getOrDefault(eng, eng); // 한글 매핑
+                })
                 .orElse("Unknown");
     }
 
@@ -178,15 +200,21 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
                 .limit(limit)
                 .map(e -> {
                     if (e instanceof Instagram i) {
-                        return new DailyStatDto(i.getPostDate().toString(), null, (long) i.getLikeCount(), (long) i.getCommentCount(), null);
+                        return new DailyStatDto(i.getPostDate().toString(), (long) i.getLikeCount(), (long) i.getCommentCount(), null);
                     } else if (e instanceof Tiktok t) {
-                        return new DailyStatDto(t.getUploadDate().toString(), t.getFollowerNum(), t.getLikeCount(), t.getCommentCount(), t.getViewCount());
+                        return new DailyStatDto(t.getUploadDate().toString(), t.getLikeCount(), t.getCommentCount(), t.getViewCount());
                     } else if (e instanceof Youtube y) {
-                        return new DailyStatDto(y.getUploadDate().toString(), y.getSubscriberCount(), y.getLikeCount(), y.getCommentCount(), y.getViewCount());
+                        return new DailyStatDto(y.getUploadDate().toString(), y.getLikeCount(), y.getCommentCount(), y.getViewCount());
                     }
                     return null;
                 })
                 .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private List<FollowerDataDto> getFollowerHistoryList(Long influencerNum, String platform) {
+        return totalFollowerRepository.findAllFollowerHistory(influencerNum, platform).stream()
+                .map(map -> new FollowerDataDto(map.get("date").toString(), (Long) map.get("followers")))
                 .toList();
     }
 }

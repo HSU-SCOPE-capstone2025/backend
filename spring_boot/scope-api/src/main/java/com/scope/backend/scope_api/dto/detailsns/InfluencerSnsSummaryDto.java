@@ -11,9 +11,9 @@ public class InfluencerSnsSummaryDto {
     private String instaId;
     private String youId;
     private String tikId;
-
     private String tags;        // "유머 / 예능, 감성 / 힐링"
     private String categories;  // "패션, 뷰티"
 
+    private FollowerHistoryDto followers;
     private SnsDto sns;
 }

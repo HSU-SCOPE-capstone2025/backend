@@ -17,7 +17,8 @@ public class PlatformSummaryDto {
     private String clusters;
     private String url;
 
-    private String instaAd; // 또는 youAd, tikAd (플랫폼별 맞게 설정)
+
+    private String adPrice; // 또는 youAd, tikAd (플랫폼별 맞게 설정)
     private List<DailyStatDto> dailyStats;
 
     // YouTube만
