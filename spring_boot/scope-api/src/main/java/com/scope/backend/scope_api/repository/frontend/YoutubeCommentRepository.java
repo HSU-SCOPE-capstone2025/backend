@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface YoutubeCommentRepository extends JpaRepository<YoutubeComment, Long> {
@@ -35,4 +36,64 @@ public interface YoutubeCommentRepository extends JpaRepository<YoutubeComment, 
         AND yc.fss IS NOT NULL
     """)
     List<Float> findFssByVideoUrls(@Param("videoUrls") List<String> videoUrls);
+
+    @Query("""
+    SELECT NEW map(yc.commentDate AS date, AVG(yc.fss) AS fss)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+    GROUP BY yc.commentDate
+    ORDER BY yc.commentDate DESC
+""")
+    List<Map<String, Object>> findRecent30FssGroupedByDate(
+            @Param("influencerNum") Long influencerNum,
+            Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(yc)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+""")
+    Long countAllByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT COUNT(yc)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+    AND yc.fss >= 40
+""")
+    Long countHighFssByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT yc.cluster, COUNT(yc)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+    GROUP BY yc.cluster
+""")
+    List<Object[]> countClusterByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT yc.emotion, COUNT(yc)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+    GROUP BY yc.emotion
+""")
+    List<Object[]> countEmotionByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT yc.topic, COUNT(yc)
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum
+    GROUP BY yc.topic
+""")
+    List<Object[]> countTopicByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT yc.comment
+    FROM YoutubeComment yc
+    WHERE yc.youtube.influencer.influencerNum = :influencerNum AND yc.topic = :topic
+    ORDER BY function('RAND')
+""")
+    List<String> findRandomCommentsByTopic(@Param("influencerNum") Long influencerNum, @Param("topic") String topic, Pageable pageable);
+
+
 }

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface InstagramCommentRepository extends JpaRepository<InstagramComment, Long> {
@@ -35,4 +36,63 @@ public interface InstagramCommentRepository extends JpaRepository<InstagramComme
         AND ic.fss IS NOT NULL
     """)
     List<Float> findFssByPostUrls(@Param("postUrls") List<String> postUrls);
+
+    @Query("""
+    SELECT NEW map(ic.commentDate AS date, AVG(ic.fss) AS fss)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+    GROUP BY ic.commentDate
+    ORDER BY ic.commentDate DESC
+""")
+    List<Map<String, Object>> findRecent30FssGroupedByDate(
+            @Param("influencerNum") Long influencerNum,
+            Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(ic)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+""")
+    Long countAllByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT COUNT(ic)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+    AND ic.fss >= 40
+""")
+    Long countHighFssByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT ic.cluster, COUNT(ic)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+    GROUP BY ic.cluster
+""")
+    List<Object[]> countClusterByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT ic.emotion, COUNT(ic)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+    GROUP BY ic.emotion
+""")
+    List<Object[]> countEmotionByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT ic.topic, COUNT(ic)
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum
+    GROUP BY ic.topic
+""")
+    List<Object[]> countTopicByInfluencer(@Param("influencerNum") Long influencerNum);
+
+    @Query("""
+    SELECT ic.comment
+    FROM InstagramComment ic
+    WHERE ic.instagram.influencer.influencerNum = :influencerNum AND ic.topic = :topic
+    ORDER BY function('RAND')
+""")
+    List<String> findRandomCommentsByTopic(@Param("influencerNum") Long influencerNum, @Param("topic") String topic, Pageable pageable);
+
 }

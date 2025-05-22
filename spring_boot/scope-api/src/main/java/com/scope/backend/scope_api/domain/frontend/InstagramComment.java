@@ -24,6 +24,12 @@ public class InstagramComment {
     @Column(name = "comment")
     private String comment;
 
+    @Column(name = "emotion")
+    private String emotion;
+
+    @Column(name = "topic")
+    private String topic;
+
     @Column(name = "comment_date")
     private LocalDate commentDate;
 
