@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -190,27 +191,56 @@ public class InfluencerSnsServiceImpl implements InfluencerSnsService {
     }
 
     private List<DailyStatDto> getDailyStats(List<? extends Object> entities, int limit) {
-        return entities.stream()
-                .sorted(Comparator.comparing(e -> {
-                    if (e instanceof Instagram i) return i.getPostDate();
-                    if (e instanceof Tiktok t) return t.getUploadDate();
-                    if (e instanceof Youtube y) return y.getUploadDate();
-                    return null;
-                }, Comparator.reverseOrder()))
-                .limit(limit)
-                .map(e -> {
-                    if (e instanceof Instagram i) {
-                        return new DailyStatDto(i.getPostDate().toString(), (long) i.getLikeCount(), (long) i.getCommentCount(), null);
-                    } else if (e instanceof Tiktok t) {
-                        return new DailyStatDto(t.getUploadDate().toString(), t.getLikeCount(), t.getCommentCount(), t.getViewCount());
-                    } else if (e instanceof Youtube y) {
-                        return new DailyStatDto(y.getUploadDate().toString(), y.getLikeCount(), y.getCommentCount(), y.getViewCount());
-                    }
-                    return null;
-                })
+        // 그룹핑 및 합산
+        Map<String, DailyStatDto> grouped = entities.stream()
                 .filter(Objects::nonNull)
+                .map(e -> {
+                    String date = null;
+                    Long likes = 0L, comments = 0L, views = null;
+
+                    if (e instanceof Instagram i) {
+                        date = i.getPostDate().toString();
+                        likes = (long) i.getLikeCount();
+                        comments = i.getCommentCount();
+                    } else if (e instanceof Tiktok t) {
+                        date = t.getUploadDate().toString();
+                        likes = t.getLikeCount();
+                        comments = t.getCommentCount();
+                        views = t.getViewCount();
+                    } else if (e instanceof Youtube y) {
+                        date = y.getUploadDate().toString();
+                        likes = y.getLikeCount();
+                        comments = y.getCommentCount();
+                        views = y.getViewCount();
+                    }
+
+                    return new DailyStatDto(date, likes, comments, views);
+                })
+                .collect(Collectors.toMap(
+                        DailyStatDto::getDate,
+                        d -> d,
+                        (d1, d2) -> new DailyStatDto(
+                                d1.getDate(),
+                                d1.getLikes() + d2.getLikes(),
+                                d1.getComments() + d2.getComments(),
+                                sumNullable(d1.getViews(), d2.getViews())
+                        )
+                ));
+
+        // 정렬 후 limit 개수만 리스트로 반환
+        return grouped.values().stream()
+                .sorted(Comparator.comparing(DailyStatDto::getDate).reversed())
+                .limit(limit)
                 .toList();
     }
+
+    // 🔧 null-safe summation for views
+    private Long sumNullable(Long a, Long b) {
+        if (a == null) return b;
+        if (b == null) return a;
+        return a + b;
+    }
+
 
     private List<FollowerDataDto> getFollowerHistoryList(Long influencerNum, String platform) {
         return totalFollowerRepository.findAllFollowerHistory(influencerNum, platform).stream()
