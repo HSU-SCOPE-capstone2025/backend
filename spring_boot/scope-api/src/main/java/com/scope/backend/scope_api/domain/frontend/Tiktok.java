@@ -45,6 +45,9 @@ public class Tiktok {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "influencer_url")
+    private String influencerUrl;
+
     @Column(name = "user_name")
     private String userName;
 

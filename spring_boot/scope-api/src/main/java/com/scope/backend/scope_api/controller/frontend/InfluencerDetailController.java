@@ -1,9 +1,11 @@
 package com.scope.backend.scope_api.controller.frontend;
 
 import com.scope.backend.scope_api.dto.detail.InfluencerAnalysisResponse;
+import com.scope.backend.scope_api.dto.detailsns.InfluencerSnsSummaryDto;
 import com.scope.backend.scope_api.dto.frontend.InfluencerSimpleDto;
 import com.scope.backend.scope_api.service.InfluencerSimpleService;
 import com.scope.backend.scope_api.service.instagram.InfluencerAnalysisService;
+import com.scope.backend.scope_api.service.instagram.InfluencerSnsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ public class InfluencerDetailController {
 
     private final InfluencerAnalysisService influencerAnalysisService;
 
+    private final InfluencerSnsService influencerSnsService;
+
     @GetMapping("/detail/{userId}")
     public ResponseEntity<InfluencerSimpleDto> getSimpleDetail(@PathVariable("userId") String userId) {
         InfluencerSimpleDto dto = influencerSimpleService.getByInstagramUserId(userId);
@@ -29,5 +33,10 @@ public class InfluencerDetailController {
     @GetMapping("/detail/{id}/analysis")
     public ResponseEntity<InfluencerAnalysisResponse> getAnalysis(@PathVariable String id) {
         return ResponseEntity.ok(influencerAnalysisService.getAnalysisByUserId(id));
+    }
+
+    @GetMapping("/detail/{id}/sns")
+    public ResponseEntity<InfluencerSnsSummaryDto> getSns(@PathVariable String id) {
+        return ResponseEntity.ok(influencerSnsService.getSnsSummary(id));
     }
 }

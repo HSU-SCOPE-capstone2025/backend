@@ -24,13 +24,13 @@ public class AdPrice {
     private String influencerName;
 
     @Column(name = "ad_price_insta")
-    private String adPriceRangeInsta;
+    private String adPriceInsta;
 
     @Column(name = "ad_price_tiktok")
-    private String adPriceRangeTiktok;
+    private String adPriceTiktok;
 
     @Column(name = "ad_price_youtube")
-    private String adPriceRangeYoutube;
+    private String adPriceYoutube;
 
 
 }

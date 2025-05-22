@@ -34,8 +34,11 @@ public class InfluencerAnalysisServiceImpl implements InfluencerAnalysisService 
             "Neutral Informative", "정보제공형",
             "Playful", "유쾌함",
             "Analytical", "분석적",
-            "Spam", "스팸",
-            "Empathetic", "공감하는"
+            "Spam/Promotional", "스팸",
+            "Empathetic", "공감하는",
+            "Sarcastic/Playful", "쾌활함"
+
+
     );
 
 
